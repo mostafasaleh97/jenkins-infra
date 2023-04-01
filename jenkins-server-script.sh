@@ -15,6 +15,17 @@ sudo systemctl start jenkins
 # install git
 sudo yum install git -y
 
+#install gettext
+sudo yum install gettext -y
+
+#install docker
+sudo yum search all docker
+sudo yum info docker
+sudo yum install docker
+sudo usermod -a -G docker ec2-user
+sudo systemctl enable docker.service
+sudo systemctl start docker.service
+
 # install terraform
 
 sudo yum install -y yum-utils

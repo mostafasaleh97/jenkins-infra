@@ -10,11 +10,27 @@ data "aws_ami" "latest-amazon-linux-image" {
     values = ["hvm"]
   }
 }
+resource "tls_private_key" "newkey" {
+algorithm = "RSA"
+rsa_bits  = 4096
+}
+resource "local_file" "newkey" {
+content  = tls_private_key.newkey.private_key_pem
+filename = var.key-name
+file_permission = "0400"
+}                                           
+
+resource "aws_key_pair" "firstkey" {
+  key_name   = var.key-name
+  public_key = tls_private_key.newkey.public_key_openssh
+  
+
+}
 
 resource "aws_instance" "myapp-server" {
   ami                         = data.aws_ami.latest-amazon-linux-image.id
   instance_type               = var.instance_type
-  key_name                    = "jenkins-server"
+  key_name                    = aws_key_pair.firstkey.key_name
   subnet_id                   = aws_subnet.myapp-subnet-1.id
   vpc_security_group_ids      = [aws_default_security_group.default-sg.id]
   availability_zone           = var.avail_zone
